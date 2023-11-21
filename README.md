@@ -1,2 +1,2 @@
 # brix
-Code brick for create application base easily
+Code bricks for create application base easily
