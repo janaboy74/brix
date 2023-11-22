@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(looprecord LANGUAGES CXX)
-set(PROJECT_TARGET looprecord)
+project(looprecord-single LANGUAGES CXX)
+set(PROJECT_TARGET looprecord-single)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
