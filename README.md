@@ -1,5 +1,5 @@
 # brix
-Code bricks for create application base easily
+Code bricks for faster application development.
 
 ## looprecord
 - I have originally developed this algorith for the Amiga(m68k assembly) for audio recording. It could record the last few seconds of samples, until the mouse button was pressed. I lost the code so I needed to rewrite it in c++.
