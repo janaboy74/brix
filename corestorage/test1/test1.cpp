@@ -50,6 +50,7 @@ void test() {
     coremap<corestring, coreint> maptest;
     coreset<corestring> setstrtest;
     coreset<coreint> setinttest;
+    corevector<coresize_t> vectorsize_ttest;
     for( auto val : testValues ) {
         vectorstrtest.push_back( val.first );
         vectorinttest.push_back( val.second );
@@ -58,6 +59,7 @@ void test() {
         maptest.insert( val.first, val.second );
         setstrtest.insert( val.first );
         setinttest.insert( val.second );
+        vectorsize_ttest.push_back( ( size_t ) val.second );
     }
     cout << "\nvectorstrtest:\n";
     for( auto val : vectorstrtest ) {
@@ -85,6 +87,10 @@ void test() {
     }
     cout << "\nsetinttest:\n";
     for( auto val : setinttest ) {
+        cout << val << " ";
+    }
+    cout << "\nvectorsize_ttest:\n";
+    for( auto val : vectorsize_ttest ) {
         cout << val << " ";
     }
     cout << endl;
