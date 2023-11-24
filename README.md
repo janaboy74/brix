@@ -8,3 +8,6 @@ Code bricks for faster application development.
 
 ## corestorage
 - std storage classes with extended functions.
+
+## corestring
+- std::string with extended functionality.
