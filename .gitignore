@@ -30,3 +30,13 @@
 *.exe
 *.out
 *.app
+
+# Qt
+CMake*.user
+*.cmake
+build-*
+
+# CMake
+CMakeCache*
+CMake*/
+Makefile
