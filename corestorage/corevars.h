@@ -9,12 +9,21 @@ using namespace std;
 template <class V> struct corevar {
 //--------------------------------
     V var;
-    corevar( V v = 0 ) : var( v ) {}
+    corevar( const V &v = 0 ) : var( v ) {}
+    V& get() {
+        return var;
+    }
     operator V&() {
         return var;
     }
-    friend bool operator < ( const corevar& l, const corevar& r) {
-       return l.var > r.var;
+    friend bool operator < ( const corevar& l, const corevar& r ) {
+       return l.var < r.var;
+    }
+    friend bool operator < ( const V& l, const corevar& r ) {
+       return l < r.var;
+    }
+    friend bool operator < ( const corevar& l, const V& r ) {
+       return l.var < r;
     }
 };
 
