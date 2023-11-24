@@ -72,6 +72,26 @@ public:
     }
 };
 
+//--------------------------------
+template <typename T> class loopRecordC : public loopRecord<T> {
+//--------------------------------
+private:
+    size_t number;
+public:
+    loopRecordC( size_t size = 0 ) : loopRecord<T>( size ), number( 0 ) {};
+    void reset() {
+        loopRecord<T>::reset();
+        number = 0;
+    }
+    void add( T item ) {
+        loopRecord<T>::add( item );
+        ++number;
+    }
+    int count() {
+        return number;
+    }
+};
+
 //-----------------------
 struct corestring : public std::string {
 //-----------------------
@@ -208,6 +228,19 @@ void test() {
             cout << endl;
         }
     }
+
+    cout << "--- countertest ---\n";
+    loopRecordC<unsigned short> crecord( 11 );
+    for( unsigned short i = 0 ; i < 7531; ++i ) {
+        crecord.add( i );
+    }
+    crecord.reorg();
+    for( int i = 0; i < crecord.length(); ++i ) {
+        if( i )
+            cout << ", ";
+        cout << crecord[ i ];
+    }
+    cout << "\n\nYou saved: " << crecord.count() - crecord.length() << " records.\n";
 
     loopRecord<corestring> csrecord( 5 );
 
