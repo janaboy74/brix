@@ -1,21 +1,10 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(corestorage LANGUAGES CXX)
-set(PROJECT_TARGET corestorage)
+project( corestorage )
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-file( GLOB SRCS
-    "${PROJECT_SOURCE_DIR}/*.cpp"
-    "${PROJECT_SOURCE_DIR}/*.h" )
-
-add_executable(${PROJECT_TARGET} ${SRCS})
-target_link_libraries(${PROJECT_TARGET} PUBLIC)
-target_include_directories(${PROJECT_TARGET} PUBLIC)
+add_subdirectory( test1 )
+add_subdirectory( test2 )
