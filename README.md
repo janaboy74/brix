@@ -11,3 +11,6 @@ Code bricks for faster application development.
 
 ## corestring
 - std::string with extended functionality.
+
+## rng
+- simple random number generator( class, single, function ).
