@@ -47,17 +47,26 @@ void test() {
         }
         cout << endl;
     }
-    cout << "----------------\n";
-    cout << "conversion test:\n";
-    cout << "----------------\n";
+    cout << "----------\n";
+    cout << "init test:\n";
+    cout << "----------\n";
 
-    coreint cival;
-    printf( "%d\n", cival );
+    coreint cival( 8 );
+    printf( "%d\n", cival.get() );
     cival = 424242;
-    printf( "%d\n", cival );
+    printf( "%d\n", cival.get() );
     fflush( stdout );
+    cout.flush();
 
-    cout << endl;
+    cout << "-------------------\n";
+    cout << "vector + init test:\n";
+    cout << "-------------------\n";
+    corevector<int16_t> testVec( 8, 1 );
+    testVec.resize( 3 );
+    testVec[ 1 ] = 3;
+    for( auto val : testVec ) {
+        cout << val << endl;
+    }
     cout.flush();
 }
 

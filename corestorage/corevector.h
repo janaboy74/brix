@@ -8,6 +8,11 @@ using namespace std;
 //--------------------------------
 template <class V> struct corevector : public vector<V> {
 //--------------------------------
+    corevector( const size_t s, const V v ) {
+        vector<V>::resize( s );
+        for( auto &var : *this )
+            var = v;
+    }
     V &operator[]( size_t index ) {
         static V dummy;
         if( index < this->size() )

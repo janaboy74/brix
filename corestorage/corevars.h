@@ -9,8 +9,15 @@ using namespace std;
 template <class V> struct corevar {
 //--------------------------------
     V var;
-    corevar( const V &v = 0 ) : var( v ) {}
+    corevar( const V v = 0 ) : var( v ) {
+        var = v;
+    }
+    corevar( const corevar &v ) : var( v.var ) {}
     V& get() {
+        return var;
+    }
+    V &operator = ( const V v ) {
+        var = v;
         return var;
     }
     operator V&() {
