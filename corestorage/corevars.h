@@ -43,6 +43,8 @@ typedef corevar<uint32_t> coreuint32_t;
 typedef corevar<int64_t> coreint64_t;
 typedef corevar<uint64_t> coreuint64_t;
 typedef corevar<size_t> coresize_t;
+typedef corevar<char> corechar;
+typedef corevar<short> coreshort;
 typedef corevar<int> coreint;
 typedef corevar<long> corelong;
 typedef corevar<size_t> coresize_t;

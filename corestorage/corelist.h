@@ -8,7 +8,7 @@ using namespace std;
 //--------------------------------
 template <class V> struct corelist : public list<V> {
 //--------------------------------
-    V &operator[]( size_t index ) {
+    V &operator[]( const size_t index ) {
         static V dummy;
         if( index < this->size() )
             return list<V>::operator[]( index );

@@ -14,7 +14,7 @@ template <class V> struct corevector : public vector<V> {
         for( auto &var : *this )
             var = v;
     }
-    V &operator[]( size_t index ) {
+    V &operator[]( const size_t index ) {
         static V dummy;
         if( index < this->size() )
             return vector<V>::operator[]( index );

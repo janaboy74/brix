@@ -8,7 +8,7 @@ using namespace std;
 //--------------------------------
 template <class V> struct coreset : public set<V> {
 //--------------------------------
-    V &operator[]( V val ) {
+    V &operator[]( const V val ) {
         static V dummy;
         if( contains( val ))
             return set< V>::operator[]( val );
