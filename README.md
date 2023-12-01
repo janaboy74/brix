@@ -1,4 +1,4 @@
-# brix
+# brix ( tips & tricks )
 Code bricks for faster application development.
 
 ## looprecord
