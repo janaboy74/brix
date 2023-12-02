@@ -1,8 +1,9 @@
 # brix ( tips & tricks )
-Code bricks for faster application development.
-This Code has MIT License, but any help is welcome. To help improve the code quality you can:
-- Send the descripton of the problem.
-- Send the solution of the problem
+Code bricks for faster application development.<br><br>
+This Code has MIT License, but any help is welcome.<br>
+To help improve the code quality you can:
+- Send a minimal, reproducible example that produces the same problem.
+- Send the solution of the problem.
 - Both.
 You can contact me on social media ( Discord / X ).
 
