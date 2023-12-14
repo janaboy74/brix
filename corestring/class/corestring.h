@@ -3,13 +3,13 @@
 
 #include <string>
 
-using namespace std;
+namespace core {
 
-struct corestring : public string {
-    /* constructor */                   corestring() : string() {};
-    /* constructor */                   corestring( const string &src ) : string( src )  {};
-    /* constructor */                   corestring( const char *src ) : string( src )  {};
-    /* constructor */                   corestring( const char src ) : string( &src, 1 ) {};
+struct corestring : public std::string {
+    /* constructor */                   corestring() : std::string() {};
+    /* constructor */                   corestring( const std::string &src ) : std::string( src )  {};
+    /* constructor */                   corestring( const char *src ) : std::string( src )  {};
+    /* constructor */                   corestring( const char src ) : std::string( &src, 1 ) {};
     void                                formatva( const char *format, va_list &arg_list );
     void                                format( const char *format, ... );
     int                                 toInt() const;
@@ -21,5 +21,7 @@ struct corestring : public string {
     void                                operator += ( const char * append );
     /* cast operator */                 operator const char *() const;
 };
+
+} // namespace core
 
 #endif // BASE_H_INCLUDED

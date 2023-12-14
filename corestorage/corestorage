@@ -1,0 +1,11 @@
+#ifndef CORESTORAGE_INCLUDED
+#define CORESTORAGE_INCLUDED
+
+#include "corevars"
+#include "corevector"
+#include "pairvector"
+#include "corelist"
+#include "coremap"
+#include "coreset"
+
+#endif // CORESTORAGE_INCLUDED

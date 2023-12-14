@@ -4,6 +4,9 @@
 #define arrayLen( array ) ( sizeof( array ) / sizeof( *array ))
 const char *syllables[]={ "no", "ki", "us", "la", "er", "ot", "qa", "ew", "tu", "ba", "uz", "ce" };
 
+using namespace std;
+using namespace core;
+
 //-----------------------
 uint32_t get_rnd( uint32_t min, uint32_t max ) {
 //-----------------------

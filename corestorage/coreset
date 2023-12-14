@@ -1,0 +1,24 @@
+#ifndef CORESET_INCLUDED
+#define CORESET_INCLUDED
+
+#include <set>
+
+namespace core {
+
+//--------------------------------
+template <class V> struct coreset : public std::set<V> {
+//--------------------------------
+    V &operator[]( const V val ) {
+        static V dummy;
+        if( contains( val ))
+            return std::set< V>::operator[]( val );
+        return dummy;
+    }
+    bool contains( const V &val ) const {
+        return std::set<V>::find( val ) != this->end();
+    }
+};
+
+} // namespace core
+
+#endif // CORESET_INCLUDED

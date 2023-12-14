@@ -76,6 +76,21 @@ public:
 //-----------------------
 void test() {
 //-----------------------
+    cout << "-------------\n";
+    cout << "hashing class\n";
+    cout << "-------------\n";
+
+    hashing genhash( "tesó", 32 );
+    genhash.printHash( true, true );
+    genhash.genHash( "tesó" );
+    genhash.printHash( false );
+    genhash.genHash( "alap" );
+    genhash.printHash( false );
+    genhash.genHash( "power" );
+    genhash.printHash( false );
+    genhash.genHash( "pow" );
+    genhash.printHash( false );
+
     cout << "------\n";
     cout << "rnd fx\n";
     cout << "------\n";

@@ -1,13 +1,15 @@
 #include <iostream>
 #include <string>
 #include "looprecord.h"
-#include "../corestorage.h"
+#include "../corestorage"
 #include <cstring>
 #include <stdarg.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <cmath>
+
+using namespace core;
 
 //--------------------------------
 void test() {

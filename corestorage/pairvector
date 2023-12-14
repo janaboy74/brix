@@ -1,0 +1,25 @@
+#ifndef PAIRVECTOR_INCLUDED
+#define PAIRVECTOR_INCLUDED
+
+#include <vector>
+
+namespace core {
+
+//--------------------------------
+template <class I, class V> struct pairvector : public std::vector<std::pair<I,V>> {
+//--------------------------------
+    pairvector() : std::vector<std::pair<I,V>>() {}
+    void push_back( const I item, const V val ) {
+        std::vector<std::pair<I,V>>::push_back( std::pair<I, V>( item, val ));
+    }
+    std::pair<I,V> &operator[]( const size_t index ) {
+        static std::pair<I,V> dummy;
+        if( index < this->size() )
+            return std::vector<std::pair<I,V>>::operator[]( index );
+        return dummy;
+    }
+};
+
+} // namespace core
+
+#endif // PAIRVECTOR_INCLUDED

@@ -1,10 +1,13 @@
 #include <iostream>
 #include <string>
-#include "../corestorage.h"
+#include "../corestorage"
 #include <cstring>
 #include <stdarg.h>
 #include <fcntl.h>
 #include <unistd.h>
+
+using namespace std;
+using namespace core;
 
 //--------------------------------
 struct corestring : public string {
@@ -19,7 +22,7 @@ struct corestring : public string {
             va_copy( cova, arg_list );
             int size = vsnprintf( NULL, 0, format, cova );
             va_end( arg_list );
-            resize( size );
+            string::resize( size );
             va_copy( cova, arg_list );
             vsnprintf( &at( 0 ), size + 1, format, cova );
             va_end( arg_list );
@@ -61,28 +64,28 @@ void test() {
         setinttest.insert( val.second );
         vectorsize_ttest.push_back( ( size_t ) val.second );
     }
-    cout << "\nvectorstrtest:\n";
-    for( auto val : vectorstrtest ) {
+    cout << "\rvectorstrtest:\n";
+    for( auto &val : vectorstrtest ) {
         cout << val << " ";
     }
     cout << "\nvectorinttest:\n";
-    for( auto val : vectorinttest ) {
+    for( auto &val : vectorinttest ) {
         cout << val << " ";
     }
     cout << "\nliststrtest:\n";
-    for( auto val : liststrtest ) {
+    for( auto &val : liststrtest ) {
         cout << val << " ";
     }
     cout << "\nlistinttest:\n";
-    for( auto val : listinttest ) {
+    for( auto &val : listinttest ) {
         cout << val << " ";
     }
     cout << "\nmaptest:\n";
-    for( auto val : maptest ) {
+    for( auto &val : maptest ) {
         cout << " [ " << val.first << ", " << val.second << " ] ";
     }
     cout << "\nsetstrtest:\n";
-    for( auto val : setstrtest ) {
+    for( auto &val : setstrtest ) {
         cout << val << " ";
     }
     cout << "\nsetinttest:\n";
@@ -90,7 +93,7 @@ void test() {
         cout << val << " ";
     }
     cout << "\nvectorsize_ttest:\n";
-    for( auto val : vectorsize_ttest ) {
+    for( auto &val : vectorsize_ttest ) {
         cout << val << " ";
     }
     cout << endl;
@@ -98,7 +101,6 @@ void test() {
     cout << "setstrtest.contains( \"invalid\" ) : " << ( setstrtest.contains( "invalid" ) ? "contains" : "not contains") << endl;
     cout << "setinttest.contains( 44 ) : " << ( setinttest.contains( 44 ) ? "contains" : "not contains") << endl;
     cout << "setinttest.contains( 1 ) : " << ( setinttest.contains( 1 ) ? "contains" : "not contains") << endl;
-    cout << endl;
     cout.flush();
 }
 

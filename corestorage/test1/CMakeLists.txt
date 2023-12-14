@@ -9,7 +9,8 @@ project(corestoragetest1 LANGUAGES CXX)
 set(PROJECT_TARGET corestoragetest1)
 
 file( GLOB SRCS "${PROJECT_SOURCE_DIR}/*.cpp"
-                "${PROJECT_SOURCE_DIR}/../*.h")
+                "${PROJECT_SOURCE_DIR}/../core*"
+                "${PROJECT_SOURCE_DIR}/../pair*")
 
 add_executable(${PROJECT_TARGET} ${SRCS})
 target_link_libraries(${PROJECT_TARGET} PUBLIC)

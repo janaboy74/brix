@@ -1,9 +1,9 @@
-#ifndef COREVARS_H_INCLUDED
-#define COREVARS_H_INCLUDED
+#ifndef COREVARS_INCLUDED
+#define COREVARS_INCLUDED
 
 #include <cstdint>
 
-using namespace std;
+namespace core {
 
 //--------------------------------
 template <class V> struct corevar {
@@ -51,4 +51,6 @@ typedef corevar<size_t> coresize_t;
 typedef corevar<float> corefloat;
 typedef corevar<double> coredouble;
 
-#endif // COREVARS_H_INCLUDED
+} // namespace core
+
+#endif // COREVARS_INCLUDED

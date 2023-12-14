@@ -1,0 +1,21 @@
+#ifndef CORELIST_INCLUDED
+#define CORELIST_INCLUDED
+
+#include <list>
+
+namespace core {
+
+//--------------------------------
+template <class V> struct corelist : public std::list<V> {
+//--------------------------------
+    V &operator[]( const size_t index ) {
+        static V dummy;
+        if( index < this->size() )
+            return std::list<V>::operator[]( index );
+        return dummy;
+    }
+};
+
+} // namespace core
+
+#endif // CORELIST_INCLUDED

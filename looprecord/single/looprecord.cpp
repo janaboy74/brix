@@ -55,7 +55,7 @@ public:
     int length() {
         return filled;
     }
-    void reorg() {
+    void reorg() { // This function is not a sorting algorithm! It just reoders the last entries limited to the given number by maintaining it's original order starting with index zero.
         int cur = 0, delta = filled - pos;
         if( pos >= filled )
             return;
@@ -93,11 +93,11 @@ public:
 };
 
 //-----------------------
-struct corestring : public std::string {
+struct corestring : public string {
 //-----------------------
-    corestring() : std::string() {}
-    corestring( const std::string &src ) : std::string( src ) {}
-    corestring( const char *src ) : std::string( src ) {}
+    corestring() : string() {}
+    corestring( const string &src ) : string( src ) {}
+    corestring( const char *src ) : string( src ) {}
     corestring( const char src ) : string( &src, 1 ) {}
     void formatva( const char *format, va_list &arg_list ) {
         if( format ) {

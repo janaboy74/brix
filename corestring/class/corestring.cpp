@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 ///////////////////////////////////////
-void corestring::formatva( const char *format, va_list &arg_list ) {
+void core::corestring::formatva( const char *format, va_list &arg_list ) {
 ///////////////////////////////////////
     if( format ) {
         va_list cova = {{}};
@@ -20,7 +20,7 @@ void corestring::formatva( const char *format, va_list &arg_list ) {
 }
 
 ///////////////////////////////////////
-void corestring::format( const char *format, ... ) {
+void core::corestring::format( const char *format, ... ) {
 ///////////////////////////////////////
     if( format ) {
         va_list arg_list;
@@ -31,43 +31,43 @@ void corestring::format( const char *format, ... ) {
 }
 
 ///////////////////////////////////////
-int corestring::toInt() const {
+int core::corestring::toInt() const {
 ///////////////////////////////////////
     return atoi( c_str() );
 }
 
 ///////////////////////////////////////
-long corestring::toLong() const {
+long core::corestring::toLong() const {
 ///////////////////////////////////////
     return atol( c_str() );
 }
 
 ///////////////////////////////////////
-float corestring::toFloat() const {
+float core::corestring::toFloat() const {
 ///////////////////////////////////////
     return atof( c_str() );
 }
 
 ///////////////////////////////////////
-double corestring::toDouble() const {
+double core::corestring::toDouble() const {
 ///////////////////////////////////////
     return atof( c_str() );
 }
 
 ///////////////////////////////////////
-char *corestring::get() {
+char *core::corestring::get() {
 ///////////////////////////////////////
     return &*begin();
 }
 
 ///////////////////////////////////////
-bool corestring::begins( const char *start ) const {
+bool core::corestring::begins( const char *start ) const {
 ///////////////////////////////////////
     return !strncmp( c_str(), start, strlen( start ));
 }
 
 ///////////////////////////////////////
-void corestring::operator += ( const char * append ) {
+void core::corestring::operator += ( const char * append ) {
 ///////////////////////////////////////
     auto length = strlen( append );
     auto prevSize = size();
@@ -76,7 +76,7 @@ void corestring::operator += ( const char * append ) {
 }
 
 ///////////////////////////////////////
-corestring::operator const char *() const {
+core::corestring::operator const char *() const {
 ///////////////////////////////////////
     return c_str();
 }

@@ -51,7 +51,7 @@ public:
     int length() {
         return filled;
     }
-    void reorg() {
+    void reorg() { // This function is not a sorting algorithm! It just reoders the last entries limited to the given number by maintaining it's original order starting with index zero.
         int cur = 0, delta = filled - pos;
         if( pos >= filled )
             return;

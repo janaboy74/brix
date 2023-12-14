@@ -1,25 +1,27 @@
-#ifndef COREVECTOR_H_INCLUDED
-#define COREVECTOR_H_INCLUDED
+#ifndef COREVECTOR_INCLUDED
+#define COREVECTOR_INCLUDED
 
 #include <vector>
 
-using namespace std;
+namespace core {
 
 //--------------------------------
-template <class V> struct corevector : public vector<V> {
+template <class V> struct corevector : public std::vector<V> {
 //--------------------------------
-    corevector() : vector<V>() {}
+    corevector() : std::vector<V>() {}
     corevector( const size_t s, const V v ) {
-        vector<V>::resize( s );
+        std::vector<V>::resize( s );
         for( auto &var : *this )
             var = v;
     }
     V &operator[]( const size_t index ) {
         static V dummy;
         if( index < this->size() )
-            return vector<V>::operator[]( index );
+            return std::vector<V>::operator[]( index );
         return dummy;
     }
 };
 
-#endif // COREVECTOR_H_INCLUDED
+} // namespace core
+
+#endif // COREVECTOR_INCLUDED
