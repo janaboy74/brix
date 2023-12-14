@@ -1,5 +1,11 @@
 # brix ( tips & tricks )
-Code bricks for faster application development.
+Code bricks for faster application development.<br><br>
+This Code has MIT License, but any help is welcome.<br>
+To help improve the code quality you can:
+- Send a minimal, reproducible example that produces the same problem.
+- Send the solution of the problem.
+- Both.
+You can contact me on social media ( Discord / X ).
 
 ## looprecord
 - I have originally developed this algorith for the Amiga(m68k assembly) for audio recording. It could record the last few seconds of samples, until the mouse button was pressed. I lost the code so I needed to rewrite it in c++.
