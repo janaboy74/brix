@@ -240,7 +240,7 @@ struct jsonItem {
         nodes = other->nodes;
         return other;
     }
-    bool isEmpty() {
+    bool empty() {
         return !( nodes.size() || subItems.size() || values.size() );
     }
 };
@@ -267,7 +267,7 @@ class json {
 public:
         shared_ptr<jsonItem> main;
         json() {}
-        void parse( const char *jsonText ) {
+        int parse( const char *jsonText ) { // return the error code - see below
             vector<shared_ptr<jsonItem>> node;
             vector<string> text;
             vector<char> stack;
@@ -275,7 +275,7 @@ public:
 
             main = make_shared<jsonItem>();
             if( !jsonText || !strlen( jsonText ))
-                return;
+                return 1; // empty json file;
 
             bool quote = false;
             bool escape = false;
@@ -362,6 +362,9 @@ public:
                     curItem->itemType = jsonItem::IT_NODE_ARRAY_SUB;
                     stack.pop_back();
                     node.erase( node.end() );
+                    if( !node.empty() ) {
+                        return 2; // too much closing brackets
+                    }
                     text.erase( text.begin() );
                     if( node.size() )
                         curItem = node.back();
@@ -391,6 +394,9 @@ public:
                 } else if( "}" == lastNode ) {
                     stack.pop_back();
                     node.erase( node.end() );
+                    if( !node.empty() ) {
+                        return 2; // too much closing brackets
+                    }
                     curItem = node.back();
                     text.erase( text.begin() );
                 } else if( text.size() > 1 && text[1] == ":" ) {
@@ -420,12 +426,13 @@ public:
                     }
                     continue;
                 } else {
-                    cerr << "Parser error / invalid json source\n";
+                    return 3; // parser error / invalid json source
                     break;
                 }
             }
             if( !( main->itemType &= jsonItem::IT_NODE_ARRAY ) && main->subItems.size() )
                 main = *main->subItems.begin();
+            return 0; // success
         }
         string toString( int identLength = 2 ) {
             string itentString;
@@ -469,7 +476,7 @@ public:
                         }
                         if( curJson->itemType &= jsonItem::IT_NODE_ARRAY ) {
                             if( nodeStack.size() ) {
-                                output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, nodeStack.back().second->isEmpty() ? "]" : "]," );
+                                output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, nodeStack.back().second->empty() ? "]" : "]," );
                                 curJson = nodeStack.back().second;
                             } else {
                                 output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, "]" );
@@ -512,7 +519,7 @@ public:
                             } else {
                                 output.push_back( BT_NODE_ARRAY_START | BT_ITEM, "[]" );
                             }
-                            if( !curJson->isEmpty() ) {
+                            if( !curJson->empty() ) {
                                 output.push_back( BT_ITEM, "," );
                             }
                             output.push_back( BT_NEWLINE, "" );
@@ -553,7 +560,7 @@ public:
                         output.push_back( BT_ITEM, '"' );
                     }
                     values.erase( values.begin() );
-                    if( curJson->isEmpty() ) {
+                    if( curJson->empty() ) {
                         output.push_back( BT_NEWLINE, "" );
                         output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM, "}" );
                         nodeStack.pop_back();
@@ -564,7 +571,7 @@ public:
                             output.push_back( BT_NEWLINE, "" );
                             break;
                         }
-                        if( !curJson->isEmpty() )
+                        if( !curJson->empty() )
                             output.push_back( BT_ITEM, "," );
                         output.push_back( BT_NEWLINE, "" );
                     } else {
@@ -588,24 +595,24 @@ public:
                                 nodeOutStack.pop_back();
                                 if( nodeStack.size() ) {
                                     curJson = nodeStack.back().second;
-                                    output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, curJson->isEmpty() ? "]" : "]," );
+                                    output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, curJson->empty() ? "]" : "]," );
                                 }
                             }
                         } else {
-                            output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, curJson->isEmpty() ? "}" : "}," );
+                            output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, curJson->empty() ? "}" : "}," );
                         }
                     } else {
                         output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, "}" );
                     }
                     continue;
                 }
-                if( curJson->isEmpty() ) {
+                if( curJson->empty() ) {
                     nodeStack.pop_back();
                     nodeOutStack.pop_back();
                     if( curJson->itemType &= jsonItem::IT_NODE_ARRAY ) {
                         if( nodeStack.size() ) {
                             curJson = nodeStack.back().second;
-                            output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, curJson->isEmpty() ? "]" : "]," );
+                            output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, curJson->empty() ? "]" : "]," );
                         }
                     } else
                         output.push_back( BT_USE_IDENT | BT_DECREASE_IDENT | BT_NODE_ARRAY_STOP | BT_NEWLINE | BT_ITEM, "}" );
@@ -666,8 +673,8 @@ public:
             *dest = 0;
             return dest;
         }
-        bool isEmpty() {
-            return main->isEmpty();
+        bool empty() {
+            return main->empty();
         }
 };
 
@@ -696,8 +703,23 @@ int test( int argc, char *argv[] ) {
 
     json json;
 
-    json.parse( result.c_str() );
-    cout << json.toString().c_str();
+    switch( auto retval = json.parse( result.c_str() )) { // can be replaced with own error handling
+    case 2:
+        std::cerr << "Too much closing brackets in json source.\n";
+        break;
+        break;
+    case 3:
+        std::cerr << "Parser error or invalid json source.\n";
+        break;
+    default:
+        if( retval <=1 ) {
+            std::cerr << "The json source looks ok.\n";
+            cout << json.toString().c_str();
+        } else
+            std::cerr << "Unknown error in json source.\n";
+        break;
+    }
+
     cout.flush();
     fflush( stdout );
 

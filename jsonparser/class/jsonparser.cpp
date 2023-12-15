@@ -52,13 +52,13 @@ std::shared_ptr<jsonItem> jsonItem::operator = ( std::shared_ptr<jsonItem> other
 }
 
 ///////////////////////////////////////
-bool jsonItem::isEmpty() {
+bool jsonItem::empty() {
 ///////////////////////////////////////
     return !( nodes.size() || subItems.size() || values.size() );
 }
 
 ///////////////////////////////////////
-void json::parse( const char *jsonText ) {
+int json::parse( const char *jsonText ) {
 ///////////////////////////////////////
     std::vector<std::shared_ptr<jsonItem>> node;
     std::vector<std::string> text;
@@ -67,7 +67,7 @@ void json::parse( const char *jsonText ) {
 
     main = std::make_shared<jsonItem>();
     if( !jsonText || !strlen( jsonText ))
-        return;
+        return 1; // empty json file;
 
     bool quote = false;
     bool escape = false;
@@ -154,6 +154,9 @@ void json::parse( const char *jsonText ) {
             curItem->itemType = jsonItem::IT_NODE_ARRAY_SUB;
             stack.pop_back();
             node.erase( node.end() );
+            if( !node.empty() ) {
+                return 2; // too much closing brackets
+            }
             text.erase( text.begin() );
             if( node.size() )
                 curItem = node.back();
@@ -183,6 +186,9 @@ void json::parse( const char *jsonText ) {
         } else if( "}" == lastNode ) {
             stack.pop_back();
             node.erase( node.end() );
+            if( !node.empty() ) {
+                return 2; // too much closing brackets
+            }
             curItem = node.back();
             text.erase( text.begin() );
         } else if( text.size() > 1 && text[1] == ":" ) {
@@ -212,12 +218,13 @@ void json::parse( const char *jsonText ) {
             }
             continue;
         } else {
-            std::cerr << "Parser error / invalid json source\n";
+            return 3; // parser error / invalid json source
             break;
         }
     }
     if( !( main->itemType &= jsonItem::IT_NODE_ARRAY ) && main->subItems.size() )
         main = *main->subItems.begin();
+    return 0; // success
 }
 
 ///////////////////////////////////////
@@ -264,7 +271,7 @@ std::string json::toString( int identLength ) {
                 }
                 if( curJson->itemType &= jsonItem::IT_NODE_ARRAY ) {
                     if( nodeStack.size() ) {
-                        output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, nodeStack.back().second->isEmpty() ? "]" : "]," );
+                        output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, nodeStack.back().second->empty() ? "]" : "]," );
                         curJson = nodeStack.back().second;
                     } else {
                         output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, "]" );
@@ -307,7 +314,7 @@ std::string json::toString( int identLength ) {
                     } else {
                         output.push_back( BT_NODE_ARRAY_START | BT_ITEM, "[]" );
                     }
-                    if( !curJson->isEmpty() ) {
+                    if( !curJson->empty() ) {
                         output.push_back( BT_ITEM, "," );
                     }
                     output.push_back( BT_NEWLINE, "" );
@@ -348,7 +355,7 @@ std::string json::toString( int identLength ) {
                 output.push_back( BT_ITEM, '"' );
             }
             values.erase( values.begin() );
-            if( curJson->isEmpty() ) {
+            if( curJson->empty() ) {
                 output.push_back( BT_NEWLINE, "" );
                 output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM, "}" );
                 nodeStack.pop_back();
@@ -359,7 +366,7 @@ std::string json::toString( int identLength ) {
                     output.push_back( BT_NEWLINE, "" );
                     break;
                 }
-                if( !curJson->isEmpty() )
+                if( !curJson->empty() )
                     output.push_back( BT_ITEM, "," );
                 output.push_back( BT_NEWLINE, "" );
             } else {
@@ -383,24 +390,24 @@ std::string json::toString( int identLength ) {
                         nodeOutStack.pop_back();
                         if( nodeStack.size() ) {
                             curJson = nodeStack.back().second;
-                            output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, curJson->isEmpty() ? "]" : "]," );
+                            output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, curJson->empty() ? "]" : "]," );
                         }
                     }
                 } else {
-                    output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, curJson->isEmpty() ? "}" : "}," );
+                    output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, curJson->empty() ? "}" : "}," );
                 }
             } else {
                 output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, "}" );
             }
             continue;
         }
-        if( curJson->isEmpty() ) {
+        if( curJson->empty() ) {
             nodeStack.pop_back();
             nodeOutStack.pop_back();
             if( curJson->itemType &= jsonItem::IT_NODE_ARRAY ) {
                 if( nodeStack.size() ) {
                     curJson = nodeStack.back().second;
-                    output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, curJson->isEmpty() ? "]" : "]," );
+                    output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, curJson->empty() ? "]" : "]," );
                 }
             } else
                 output.push_back( BT_USE_IDENT | BT_DECREASE_IDENT | BT_NODE_ARRAY_STOP | BT_NEWLINE | BT_ITEM, "}" );
@@ -466,7 +473,7 @@ char *json::addString( char *dest, const char *add ) {
 }
 
 ///////////////////////////////////////
-bool json::isEmpty() {
+bool json::empty() {
 ///////////////////////////////////////
-    return main->isEmpty();
+    return main->empty();
 }

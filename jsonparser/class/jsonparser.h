@@ -26,7 +26,7 @@ struct jsonItem {
     ~jsonItem() {};
     void operator = ( const jsonItem &other );
     std::shared_ptr<jsonItem> operator = ( std::shared_ptr<jsonItem> other );
-    bool isEmpty();
+    bool empty();
 };
 
 // simple but powerful json parser
@@ -50,8 +50,8 @@ class json {
 public:
         std::shared_ptr<jsonItem> main;
         json() {}
-        void parse( const char *jsonText );
+        int parse( const char *jsonText );
         std::string toString( int identLength = 2 );
         char *addString( char *dest, const char *add );
-        bool isEmpty();
+        bool empty();
 };
