@@ -14,9 +14,13 @@ You can contact me on social media ( Discord / X ).
 
 ## corestorage
 - std storage classes with extended functions.
+- coreset & coremap for example has a modificator function which helps to modify the map itself in a range based loop( c++11 ). For usage example see test#2.
 
 ## corestring
 - std::string with extended functionality.
 
 ## rng
 - simple random number generator( class, single, function ).
+
+## jsonparser
+- simple, efficient json codec. I have tested a lot, but because the algorithm is very complex it is not recommended to use safety critical projects.
