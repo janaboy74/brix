@@ -2,12 +2,36 @@
 #define CORESET_INCLUDED
 
 #include <set>
+#include <memory>
 
 namespace core {
 
+template <class V> class coresetmodificator {
+    std::set<V> removed;
+    std::set<V> inserted;
+    template<class X> friend class coreset;
+public:
+    void insert( const V val ) {
+        if( removed.find( val ) != inserted.end() )
+            removed.erase( val );
+        inserted.insert( val );
+    }
+    void remove( const V val ) {
+        if( inserted.find( val ) != inserted.end() )
+            inserted.erase( val );
+        removed.insert( val );
+    }
+    void cleanup() {
+        removed.clear();
+        inserted.clear();
+    }
+};
+
 //--------------------------------
-template <class V> struct coreset : public std::set<V> {
+template <class V> class coreset : public std::set<V> {
 //--------------------------------
+    std::shared_ptr<coresetmodificator<V>> setmodificator;
+public:
     V &operator[]( const V val ) {
         static V dummy;
         if( contains( val ))
@@ -16,6 +40,24 @@ template <class V> struct coreset : public std::set<V> {
     }
     bool contains( const V &val ) const {
         return std::set<V>::find( val ) != this->end();
+    }
+    coresetmodificator<V> &modificator() {
+        if( !setmodificator.get() )
+            setmodificator = std::make_shared<coresetmodificator<V>>();
+        return *setmodificator.get();
+    }
+    void update( coresetmodificator<V> *modificator = nullptr ) {
+        auto &executor = modificator ? ( *modificator) : ( *setmodificator.get() );
+        if( !&executor )
+            return;
+        for( auto &item : executor.removed ) {
+            std::set<V>::erase( item );
+        }
+        for( auto &item : executor.inserted ) {
+            std::set<V>::insert( item );
+        }
+        if( !modificator )
+            setmodificator->cleanup();
     }
 };
 

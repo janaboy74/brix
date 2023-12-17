@@ -109,11 +109,11 @@ void test() {
         sintable.insert( angle, sin( angle ));
         costable.insert( angle, cos( angle + M_PI / 8 ));
     }
-    for( auto it = sintable.begin() ; it != sintable.end(); ++it ) {
-        if( it->second < 1e-5f )
-            mathmod.remove( it->first );
-        else if( it->second == 1 )
-            crossonekiller.remove( it->first );
+    for( auto &item : sintable ) {
+        if( item.second < 1e-5f )
+            mathmod.remove( item.first );
+        else if( item.second == 1 )
+            crossonekiller.remove( item.first );
     }
     sintable.update( &mathmod );
     costable.update( &mathmod );
@@ -125,7 +125,24 @@ void test() {
     for( auto &tableItem : costable ) {
         cout << "cos: " << tableItem.first << '=' << tableItem.second << endl;
     }
-    mathmod.cleanup();
+    cout << "<< set >>\n";
+    coreset< char > settable;
+    for( auto &chr : "This is a test string" ) {
+        if( chr )
+            settable.insert( chr );
+    }
+    for( auto &chr : settable ) {
+        if( isupper( chr ))
+            settable.modificator().remove( chr );
+    }
+    settable.update();
+    cout << "contains: ";
+    for( auto &chr : settable ) {
+        if( &chr != &*settable.begin() )
+            cout << ", ";
+        cout << "'" << chr << "'";
+    }
+    cout << endl;
     cout.flush();
 }
 
