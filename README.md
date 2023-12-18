@@ -14,7 +14,7 @@ You can contact me on social media ( Discord / X ).
 
 ## corestorage
 - std storage classes with extended functions.
-- coreset & coremap for example has a modificator function which helps to modify the map itself in a range based loop( c++11 ). For usage example see test#2.
+- coremodset & coremodmap for example has a modificator function which helps to modify the map itself in a range based loop( c++11 ). For usage example see test#2.
 
 ## corestring
 - std::string with extended functionality.
