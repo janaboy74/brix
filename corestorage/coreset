@@ -7,8 +7,10 @@
 namespace core {
 
 //--------------------------------
-template <class V> struct coreset : public std::set<V> {
+template <class V, typename Compare = std::less<V>, typename Alloc = std::allocator<V>> struct coreset : public std::set<V> {
 //--------------------------------
+    coreset() : std::set<V> () {}
+    coreset( std::initializer_list<V> list, const Compare& cmp = Compare(), const Alloc& alloc = Alloc() ) : std::set<V>( list, cmp, alloc ) {}
     V &operator[]( const V val ) {
         static V dummy;
         if( contains( val ))
