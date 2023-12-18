@@ -71,7 +71,7 @@ void test() {
         cout << val << endl;
     }
 
-    coremap<char, int> assign;
+    coremodmap<char, int> assign;
     assign.insert( 'C', 1 );
     assign.insert( 'a', 5 );
     assign.insert( 'z', 8 );
@@ -103,7 +103,7 @@ void test() {
     cout << "\n--- external map modificator test ---\n";
     coremapmodificator< float, float > mathmod;
     coremapmodificator< float, float > crossonekiller;
-    coremap< float, float > sintable, costable;
+    coremodmap< float, float > sintable, costable;
     for( int i = 0; i <= 16; ++i ) {
         float angle = i * M_PI / 4.f;
         sintable.insert( angle, sin( angle ));
@@ -126,7 +126,7 @@ void test() {
         cout << "cos: " << tableItem.first << '=' << tableItem.second << endl;
     }
     cout << "<< set >>\n";
-    coreset< char > settable;
+    coremodset< char > settable;
     for( auto &chr : "This is a test string" ) {
         if( chr )
             settable.insert( chr );
