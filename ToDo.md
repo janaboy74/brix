@@ -1,3 +1,2 @@
-- create History.md
 - create sqlite project
-- create image project
+- create image helper project
