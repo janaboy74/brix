@@ -6,9 +6,10 @@
 namespace core {
 
 //--------------------------------
-template <class V> struct corevector : public std::vector<V> {
+template <class V, class Alloc = std::allocator<V>> struct corevector : public std::vector<V> {
 //--------------------------------
     corevector() : std::vector<V>() {}
+    corevector( std::initializer_list<V> list, const Alloc& alloc = Alloc() ) : std::vector<V>( list, alloc ) {}
     corevector( const size_t s, const V v ) {
         std::vector<V>::resize( s );
         for( auto &var : *this )

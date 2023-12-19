@@ -143,6 +143,38 @@ void test() {
         cout << "'" << chr << "'";
     }
     cout << endl;
+    corelist<char> listinitlisttest { 'a', 'b', 'c' };
+    cout << "corelist initializer list test : ";
+    for( auto &chr : listinitlisttest ) {
+        if( &chr != &*listinitlisttest.begin() )
+            cout << ", ";
+        cout << "'" << chr << "'";
+    }
+    cout << endl;
+    corevector<char> vectorinitlisttest { 'a', 'b', 'c' };
+    cout << "corevector initializer list test : ";
+    for( auto &chr : vectorinitlisttest ) {
+        if( &chr != &*vectorinitlisttest.begin() )
+            cout << ", ";
+        cout << "'" << chr << "'";
+    }
+    cout << endl;
+    coreset<char> setinitlisttest { 'a', 'b', 'c' };
+    cout << "coreset initializer list test : ";
+    for( auto &chr : setinitlisttest ) {
+        if( &chr != &*setinitlisttest.begin() )
+            cout << ", ";
+        cout << "'" << chr << "'";
+    }
+    cout << endl;
+    map<char, int> mapinitlisttest {{ 'a', 2 }, { 'b', 3 }, { 'c', 1 }};
+    cout << "coremap initializer list test : ";
+    for( auto &item : mapinitlisttest ) {
+        if( &item != &*mapinitlisttest.begin() )
+            cout << ", ";
+        cout << "{ " << item.first << " = " << item.second << " }";
+    }
+    cout << endl;
     cout.flush();
 }
 

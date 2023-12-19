@@ -6,8 +6,10 @@
 namespace core {
 
 //--------------------------------
-template <class V> struct corelist : public std::list<V> {
+template <class V, class Alloc = std::allocator<V>> struct corelist : public std::list<V> {
 //--------------------------------
+    corelist() {}
+    corelist( std::initializer_list<V> list, const Alloc& alloc = Alloc() ) : std::list<V>( list, alloc ) {}
     V &operator[]( const size_t index ) {
         static V dummy;
         if( index < this->size() )
