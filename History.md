@@ -1,4 +1,8 @@
 # History<br>
+#### 2023 Dec 19 08:21:04
+- Ininializer list for corestorage classes added / fixed.
+- Ininializer list tests added for corestorage classes.
+
 #### 2023 Dec 18 19:19:41
 - Addedd missing initialization list constructor for coreset and coremap and derivatives.
 
