@@ -1,4 +1,7 @@
 # History<br>
+#### 2023 Dec 18 19:19:41
+- Addedd missing initialization list constructor for coreset and coremap and derivatives.
+
 #### 2023 Dec 18 09:28:04
 - The template class coremap and coreset has now optional modificators with different names.
 - Test #2 updated to follow this.
