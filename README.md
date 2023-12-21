@@ -27,7 +27,7 @@ You can contact me on social media ( Discord / X ).
 ---
 # Practical use cases
 - Looprecord could help autonomous cars to record the last minute or a few seconds of input data before an accident ( it could also run in the background ).
-  1. Keeping all relevant raw data in memory( limited by looprecord).
-  2. Right after the event in will be packed into structured single package( pictures -> video, measurement -> compressed csv / sqlite / raw data / other practical form, etc. ).
-  3. The files should be saved into a non-volatile storage with timestamps ( + event type ).
+1. Keeping all relevant raw data in memory( limited by looprecord).
+2. Right after the event in will be packed into structured single package( pictures -> video, measurement -> compressed csv / sqlite / raw data / other practical form, etc. ).
+3. The files should be saved into a non-volatile storage with timestamps ( + event type ).
   The event trigger could be also a problematic situations ( the software runs into an unexpected state ) or a user request.
