@@ -125,18 +125,24 @@ void test() {
     for( auto &tableItem : costable ) {
         cout << "cos: " << tableItem.first << '=' << tableItem.second << endl;
     }
-    cout << "<< set >>\n";
+    cout << "<set>: ";
     coremodset< char > settable;
     for( auto &chr : "This is a test string" ) {
         if( chr )
             settable.insert( chr );
     }
     for( auto &chr : settable ) {
+        if( &chr != &*settable.begin() )
+            cout << ", ";
+        cout << "'" << chr << "'";
+    }
+    cout << endl;
+    for( auto &chr : settable ) {
         if( isupper( chr ))
             settable.modificator().remove( chr );
     }
     settable.update();
-    cout << "contains: ";
+    cout << "after: ";
     for( auto &chr : settable ) {
         if( &chr != &*settable.begin() )
             cout << ", ";
@@ -159,16 +165,24 @@ void test() {
         cout << "'" << chr << "'";
     }
     cout << endl;
-    coreset<char> setinitlisttest { 'a', 'b', 'c' };
-    cout << "coreset initializer list test : ";
+    pairvector<char, int> pairvectorinitlisttest {{ 'b', 2 }, { 'c', 3 }, { 'a', 1 }};
+    cout << "pairvector initializer list test : ";
+    for( auto &item : pairvectorinitlisttest ) {
+        if( &item != &*pairvectorinitlisttest.begin() )
+            cout << ", ";
+        cout << "{ " << item.first << " = " << item.second << " }";
+    }
+    cout << endl;
+    coremodset<char> setinitlisttest { 'a', 'b', 'c' };
+    cout << "coremodset initializer list test : ";
     for( auto &chr : setinitlisttest ) {
         if( &chr != &*setinitlisttest.begin() )
             cout << ", ";
         cout << "'" << chr << "'";
     }
     cout << endl;
-    map<char, int> mapinitlisttest {{ 'a', 2 }, { 'b', 3 }, { 'c', 1 }};
-    cout << "coremap initializer list test : ";
+    coremodmap<char, int> mapinitlisttest {{ 'b', 2 }, { 'c', 3 }, { 'a', 1 }};
+    cout << "coremodmap initializer list test : ";
     for( auto &item : mapinitlisttest ) {
         if( &item != &*mapinitlisttest.begin() )
             cout << ", ";

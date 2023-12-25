@@ -27,7 +27,7 @@ template <class V> class coresetmodificator {
     //--------------------------------
     std::set<V> removed;
     std::set<V> inserted;
-    template<class X> friend class coremodset;
+    template<class X, class Compare, class Alloc > friend class coremodset;
 public:
     void insert( const V val ) {
         if( removed.find( val ) != inserted.end() )
@@ -46,10 +46,12 @@ public:
 };
 
 //--------------------------------
-template <class V> class coremodset : public std::set<V> {
+template <class V, typename Compare = std::less<V>, typename Alloc = std::allocator<V>> struct coremodset : public coreset<V> {
 //--------------------------------
     std::shared_ptr<coresetmodificator<V>> setmodificator;
 public:
+    coremodset() : coreset<V> () {}
+    coremodset( std::initializer_list<V> list, const Compare& cmp = Compare(), const Alloc& alloc = Alloc() ) : coreset<V>( list, cmp, alloc ) {}
     coresetmodificator<V> &modificator() {
         if( !setmodificator.get() )
             setmodificator = std::make_shared<coresetmodificator<V>>();
