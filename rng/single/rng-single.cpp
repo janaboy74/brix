@@ -108,7 +108,7 @@ public:
             flip();
             if( chSrc + step > srcEnd || hashOut + step > hashEnd ) {
                 int rest = srcEnd - chSrc;
-                if( rest > hashEnd - hashOut  )
+                if( rest > hashEnd - hashOut )
                     rest = hashEnd - hashOut;
                 for( int pos = 0; pos < rest ; ++pos ) {
                     flip();
@@ -173,8 +173,6 @@ public:
         cout << toHexString( uppercase, prefix ) << " : " << srcText << endl;
     }
 };
-
-
 
 //--------------------------------
 template <typename T> class loopRecord {
@@ -244,6 +242,36 @@ public:
                 pos -= delta;
             }
         }
+    }
+};
+
+//-----------------------
+class shuffler {
+    //-----------------------
+public:
+    typedef uint8_t shufflerType;
+    shufflerType hash;
+    shufflerType mul;
+    shufflerType add;
+protected:
+    void flip() {
+        hash *= mul;
+        hash += add;
+    }
+public:
+    shuffler( const shufflerType begin = 0, const shufflerType mul = 0xc9, const shufflerType add = 0x7a ) : hash( begin ), mul( mul ), add( add ) {
+        //reInit( begin, mul , add );
+    }
+    ~shuffler() {
+    }
+    void reInit( const shufflerType begin = 0, const shufflerType mul = 0xc9, const shufflerType add = 0x7a ) {
+        hash = begin;
+        this->mul = ( mul & ~3 ) | 1 ;
+        this->add = add | 1;
+    }
+    shufflerType getNext() {
+        flip();
+        return hash;
     }
 };
 
@@ -361,13 +389,13 @@ int testRng() {
     cout << "------------------------\n";
     cout.flush();
     rng rng;
-    uint32_t s = 0, hash = 0;
-    uint32_t i = 0, maxuint = ~(uint32_t)0;
+    rng::rngType s = 0, hash = 0;
+    rng::rngType i = 0, maxrng = ~(rng::rngType)0;
     bool firstloop = true;
     for( i = 0;; ++i ) {
         hash = rng.getRnd();
         if( firstloop ) {
-            if( i >= maxuint ) {
+            if( i >= maxrng ) {
                 s = hash;
                 i = 0;
                 firstloop = false;
@@ -375,8 +403,8 @@ int testRng() {
                 cout.flush();
             }
         } else {
-            if( s == hash || i >= maxuint ) {
-                if( i >= maxuint )
+            if( s == hash || i >= maxrng ) {
+                if( i >= maxrng )
                     cout << "test completed successfully\n";
                 else
                     cout << "there is a problem with the algorithm with value: " << hex << setfill('0') << setw( 8 ) << i << dec << endl;
@@ -386,6 +414,53 @@ int testRng() {
     }
     cout << "------------------------\n";
 #endif
+
+    cout << "--------------\n";
+    cout << "shuffler class\n";
+    cout << "--------------\n";
+
+    shuffler shflr;
+    shuffler::shufflerType maxshuffler = ~(shuffler::shufflerType) 0;
+    uint32_t success = 0;
+    uint32_t problems = 0;
+
+    for( uint16_t add = 1; add <= maxshuffler; add += 2 ) {
+        for( uint16_t mul = 1; mul <= maxshuffler; mul += 4 ) {
+            shflr.reInit( 0, mul, add );
+            shuffler::shufflerType s = 0, hash = 0;
+            bool firstloop = true;
+            for( shuffler::shufflerType i = 0;; ++i ) {
+                hash = shflr.getNext();
+                if( firstloop ) {
+                    if( i >= maxshuffler ) {
+                        s = hash;
+                        i = 0;
+                        firstloop = false;
+                        cout.flush();
+                    }
+                } else {
+                    if( s == hash || i >= maxshuffler ) {
+                        if( i >= maxshuffler )
+                            ++success;
+                        else
+                            ++problems;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    cout << "shuffler test completed with: " << success << " success & " << problems << " problems\n";
+    cout << "shuffler example:";
+    shflr.reInit( get_rnd( 0, 255 ), get_rnd( 0, 255 ), get_rnd( 0, 255 ));
+    for( uint16_t i = 0; i <= maxshuffler; ++i ) {
+        if( i )
+            cout << ", ";
+        if( !( i & 15 ))
+            cout << "\n";
+        cout << hex << setfill('0') << setw( 2 ) << ( uint16_t ) shflr.getNext() << dec;
+    }
+    cout << "\n";
     return 0;
 }
 
