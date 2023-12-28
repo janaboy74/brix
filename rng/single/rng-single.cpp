@@ -174,6 +174,135 @@ public:
     }
 };
 
+//-----------------------
+class rngparams : public rng {
+//-----------------------
+public:
+    rngType mul;
+    rngType add;
+    void gen( size_t minDigitCount = 1, size_t dontMatchLastNDigit = 0 ) {
+        init();
+        short dontMatchLastBits = dontMatchLastNDigit * 4;
+        for(;;) {
+            for( size_t i = 0;; ) {
+                size_t max = getRnd( 1, 4 );
+                if( !i && getRnd( 0, 1 ))
+                    max = 0;
+                for( size_t s = 0; s < max; ++s ) {
+                    mul = mul << 1 | 1; ++i;
+                    if( i >= sizeof( rngType ) * 8 )
+                        break;
+                }
+                if( i >= sizeof( rngType ) * 8 )
+                    break;
+                max = getRnd( 1, 4 );
+                for( size_t s = 0; s < max; ++s ) {
+                    mul = mul << 1 | 0; ++i;
+                    if( i >= sizeof( rngType ) * 8 )
+                        break;
+                }
+                if( i >= sizeof( rngType ) * 8 )
+                    break;
+            }
+            mul = mul << 2;
+            mul = ( mul & ~3 ) | 1 ;
+            bool fail = false;
+            short found = 0;
+            size_t fcount = 0;
+            auto test = mul;
+            for( size_t rotate = 0; rotate < sizeof( rngType ) * 8; rotate += 4 ) {
+                uint8_t cur = ( test >> rotate ) & 0xf;
+                found |= 1 << cur;
+                for( size_t cnt = 4; cnt < dontMatchLastBits && cnt <= rotate ; cnt += 4 ) {
+                    uint8_t act = test >> ( rotate - cnt ) &0xf;
+                    if( act == cur ) {
+                        fail = true;
+                        break;
+                    }
+                }
+                if( fail )
+                    break;
+            }
+            if( fail )
+                continue;
+            for( size_t rotate = 0; rotate < sizeof( rngType ) * 8; ++rotate ) {
+                if(( found >> rotate ) & 1 ) {
+                    ++fcount ;
+                }
+            }
+            if( fcount < minDigitCount )
+                continue;
+            break;
+        }
+        for(;;) {
+            init();
+            add = 0;
+            for( size_t i = 0;; ) {
+                size_t max = getRnd( 1, 4 );
+                if( !i && getRnd( 0, 1 ))
+                    max = 0;
+                for( size_t s = 0; s < max; ++s ) {
+                    add = add << 1 | 1; ++i;
+                    if( i >= sizeof( rngType ) * 8 )
+                        break;
+                }
+                if( i >= sizeof( rngType ) * 8 )
+                    break;
+                max = getRnd( 1, 4 );
+                for( size_t s = 0; s < max; ++s ) {
+                    add = add << 1 | 0; ++i;
+                    if( i >= sizeof( rngType ) * 8 )
+                        break;
+                }
+                if( i >= sizeof( rngType ) * 8 )
+                    break;
+            }
+            add = add | 1;
+            bool fail = false;
+            short found = 0;
+            size_t fcount = 0;
+            auto test = mul;
+            test = add;
+            for( size_t rotate = 0; rotate < sizeof( rngType ) * 8; rotate += 4 ) {
+                uint8_t cur = ( test >> rotate ) & 0xf;
+                found |= 1 << cur;
+                for( size_t cnt = 4; cnt < dontMatchLastBits && cnt <= rotate ; cnt += 4 ) {
+                    uint8_t act = test >> ( rotate - cnt ) &0xf;
+                    if( act == cur ) {
+                        fail = true;
+                        break;
+                    }
+                }
+                if( fail )
+                    break;
+            }
+            if( fail )
+                continue;
+            fcount = 0; for( size_t rotate = 0; rotate < sizeof( rngType ) * 8; ++rotate ) {
+                if(( found >> rotate ) & 1 ) {
+                    ++fcount ;
+                }
+            }
+            if( fcount < minDigitCount )
+                continue;
+            break;
+        }
+    }
+    template<class T> static T singlehex( T ch, bool uppercase = false ){
+        return ch < 10 ? ch + '0' : ch - 10 + ( uppercase ? 'A' : 'a' );
+    }
+    static void printHex( rngType input, bool uppercase = false, bool prefix = false ) {
+        if( prefix )
+            cout << "0x";
+        size_t max = sizeof( rngType );
+        uint8_t *pch = (( uint8_t * ) &input ) + max - 1;
+        for( size_t i = 0; i < sizeof( rngType ); ++i, --pch ) {
+            cout << singlehex<char>( *pch >> 4, uppercase );
+            cout << singlehex<char>( *pch & 0xf, uppercase );
+        }
+    }
+};
+
 //--------------------------------
 template <typename T> class loopRecord {
 //--------------------------------
@@ -461,6 +590,16 @@ int testRng() {
         cout << hex << setfill('0') << setw( 2 ) << ( uint16_t ) shflr.getNext() << dec;
     }
     cout << "\n";
+
+    cout << "----------------------\n";
+    cout << "rngparams helper class\n";
+    cout << "----------------------\n";
+    rngparams rngprms;
+    for( int z = 0; z < 10; ++z ) {
+        rngprms.gen( 6, 3 );
+        cout << "mul: "; rngprms.printHex( rngprms.mul ); cout << ", add: "; rngprms.printHex( rngprms.add ); cout << "\n";
+    }
+
     return 0;
 }
 
