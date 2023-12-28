@@ -19,8 +19,10 @@ You can contact me on social media ( Discord / X ).
 ## corestring
 - std::string with extended functionality.
 
-## rng
+## rng / hash / shuffler
 - simple random number generator( class, single, function ).
+- multipurpose / flexible hash also based on rng class
+- shuffler - mixing bytes order in array form with rng algorithm
 
 ## jsonparser
 - simple, efficient json codec. I have tested a lot, but because the algorithm is very complex it is not recommended to use safety critical projects.
