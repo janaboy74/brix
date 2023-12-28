@@ -21,7 +21,7 @@ You can contact me on social media ( Discord / X ).
 
 ## rng / hash / shuffler
 - simple random number generator( class, single, function ).
-- multipurpose / flexible hash also based on rng class
+- multipurpose / flexible hash algorithm based on rng class
 - shuffler - mixing bytes order in array form with rng algorithm
 
 ## jsonparser
