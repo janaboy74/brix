@@ -4,6 +4,7 @@
 #include <cstdarg>
 #include <cinttypes>
 #include <vector>
+#include <cmath>
 #include <fcntl.h>
 #include <unistd.h>
 #include <memory>
@@ -543,7 +544,19 @@ int testRng() {
     }
     cout << "------------------------\n";
 #endif
+    cout << "----------------------\n";
+    cout << "rngparams helper class\n";
+    cout << "----------------------\n";
+    rngparams rngprms;
+    for( int z = 0; z < 10; ++z ) {
+        rngprms.gen( 6, 3 );
+        cout << "mul: "; rngprms.printHex( rngprms.mul ); cout << ", add: "; rngprms.printHex( rngprms.add ); cout << "\n";
+    }
 
+    return 0;
+}
+
+int testShuffler() {
     cout << "--------------\n";
     cout << "shuffler class\n";
     cout << "--------------\n";
@@ -591,14 +604,50 @@ int testRng() {
     }
     cout << "\n";
 
-    cout << "----------------------\n";
-    cout << "rngparams helper class\n";
-    cout << "----------------------\n";
-    rngparams rngprms;
-    for( int z = 0; z < 10; ++z ) {
-        rngprms.gen( 6, 3 );
-        cout << "mul: "; rngprms.printHex( rngprms.mul ); cout << ", add: "; rngprms.printHex( rngprms.add ); cout << "\n";
+    return 0;
+}
+
+uint32_t nextPrime( uint32_t value) {
+    if( value > 2 ) {
+        uint32_t i, q;
+        do {
+            i = 3;
+            value += 2;
+            q = floor( sqrt( value ));
+            while( i <= q && value % i ) {
+                i += 2;
+            }
+        } while( i <= q );
+        return value;
     }
+    return value == 2 ? 3 : 2;
+}
+
+int testPrime() {
+    cout << "-----------------------------------\n";
+    cout << "prime numbers for ideal hash length\n";
+    cout << "-----------------------------------\n";
+    uint32_t value = 0;
+    for( uint32_t d = 1; d < ( 2 << 16 ); d = d << 1 ) {
+        cout << setfill(' ') << setw( 6 ) << d << ": ";
+        for( uint32_t i = 0; value < d ; ++i ) {
+            value = nextPrime( value );
+        }
+        int print = 1.5f + log( d ) / log( 7 );
+        for( uint32_t i = 0;; ++i ) {
+            auto next = nextPrime( value );
+            if( --print > 0 && value < ( d << 1 )) {
+                if( i )
+                    cout << ", ";
+                cout << setfill(' ') << setw( 6 ) << value;
+                value = next;
+            } else {
+                break;
+            }
+        }
+        cout << endl;
+    }
+    cout << "\n";
 
     return 0;
 }
@@ -608,6 +657,8 @@ int test() {
 //-----------------------
     testHash();
     testRng();
+    testShuffler();
+    testPrime();
 
     cout.flush();
     return 0;
