@@ -1,3 +1,4 @@
+#include "jsonparser.h"
 #include <iostream>
 #include <cstring>
 #include <cstdarg>
@@ -10,11 +11,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
-#include <../../corestring/class/corestring.h>
-#include <../../corestorage/corevector>
-#include <../../corestorage/pairvector>
-#include <../../corestorage/coremap>
-#include <jsonparser.h>
 
 #ifdef __linux
 #define O_BINARY 0
@@ -100,17 +96,17 @@ int json::parse( const char *jsonText ) {
             continue;
         }
         switch( *ch ) {
-            case '\n': case ' ': case '\t':
-                break;
-            case '[': case ']': case '{': case '}': case ',': case ':':
-                if( str.length() )
-                    text.push_back( str );
-                str.clear();
-                text.push_back( corestring( *ch ));
-                break;
-            default:
-                str += *ch;
-                break;
+        case '\n': case ' ': case '\t':
+            break;
+        case '[': case ']': case '{': case '}': case ',': case ':':
+            if( str.length() )
+                text.push_back( str );
+            str.clear();
+            text.push_back( corestring( *ch ));
+            break;
+        default:
+            str += *ch;
+            break;
         }
     }
 
@@ -129,21 +125,16 @@ int json::parse( const char *jsonText ) {
             lastStack = stack.back();
         if( text.size() )
             lastNode = text.front();
-        if( "null" == lastNode ) {
-            text.erase( text.begin() );
-            lastNode = text.front();
-            continue;
-        } else if( "[" == lastNode ) {
+        if( "[" == lastNode ) {
             stack.push_back( *text.front().begin() );
             std::shared_ptr<jsonItem> newItem = std::make_shared<jsonItem>();
+            newItem->itemType = jsonItem::IT_NODE_ARRAY_SUB;
+            stack.push_back( '.' );
             if( name.size() ) {
-                stack.push_back( '.' );
-                std::shared_ptr<jsonItem> newItem = std::make_shared<jsonItem>();
                 curItem->nodes.insert( name, newItem );
-                node.push_back( newItem );
-                curItem = node.back();
-                text.erase( text.begin() );
-                continue;
+                name.clear();
+            } else if( curItem ) {
+                curItem->subItems.push_back( newItem );
             } else {
                 main = newItem;
             }
@@ -151,13 +142,12 @@ int json::parse( const char *jsonText ) {
             curItem = node.back();
             text.erase( text.begin() );
         } else if( "]" == lastNode ) {
-            curItem->itemType = jsonItem::IT_NODE_ARRAY_SUB;
             stack.pop_back();
             node.erase( node.end() );
-            if( !node.empty() ) {
+            text.erase( text.begin() );
+            if( node.empty() && text.size() ) {
                 return 2; // too much closing brackets
             }
-            text.erase( text.begin() );
             if( node.size() )
                 curItem = node.back();
             else
@@ -170,6 +160,7 @@ int json::parse( const char *jsonText ) {
                 curItem = node.back();
                 stack.push_back( *lastNode.begin() );
                 text.erase( text.begin() );
+                name.clear();
                 continue;
             }
             std::shared_ptr<jsonItem> newItem = std::make_shared<jsonItem>();
@@ -186,26 +177,31 @@ int json::parse( const char *jsonText ) {
         } else if( "}" == lastNode ) {
             stack.pop_back();
             node.erase( node.end() );
-            if( !node.empty() ) {
+            text.erase( text.begin() );
+            if( node.empty() && text.size() ) {
                 return 2; // too much closing brackets
             }
             curItem = node.back();
-            text.erase( text.begin() );
-        } else if( text.size() > 1 && text[1] == ":" ) {
-            name = text.front();
-            text.erase( text.begin() );
-            text.erase( text.begin() );
-            if( text.size() ) {
-                if( "[" == text.front() ||
-                    "]" == text.front() ||
-                    "{" == text.front() ||
-                    "}" == text.front() )
-                    continue;
-                val = text.front();
+        } else if( text.size() > 1 ) {
+            if( text[1] == ":" ) {
+                name = text.front();
                 text.erase( text.begin() );
-                curItem->values.insert( name, val );
+                text.erase( text.begin() );
+                if( text.size() ) {
+                    if( "[" == text.front() ||
+                        "]" == text.front() ||
+                        "{" == text.front() ||
+                        "}" == text.front() )
+                        continue;
+                    val = text.front();
+                    text.erase( text.begin() );
+                    curItem->values.insert( name, val );
+                }
+                name.clear();
+            } else {
+                curItem->array.push_back( lastNode );
+                text.erase( text.begin() );
             }
-            name.clear();
         } else if( '.' == lastStack ) {
             curItem->itemType = jsonItem::IT_NODE_ARRAY_LIST;
             if( name.size() ) {
@@ -228,110 +224,46 @@ int json::parse( const char *jsonText ) {
 }
 
 ///////////////////////////////////////
-std::string json::toString( int identLength ) {
+pairvector< uint16_t, corestring > json::nodeToString( pairvector< uint16_t, corestring > &output, std::shared_ptr<jsonItem> item ) {
 ///////////////////////////////////////
-    std::string itentString;
-    itentString.resize( identLength );
-    memset( &*itentString.begin(), ' ', itentString.length() );
-
-    std::vector< std::shared_ptr<jsonItem>> allNodes; // to hold shared_ptr-s
-    pairvector< uint16_t, corestring > output;
-    pairvector< corestring, std::shared_ptr<jsonItem>> nodeStack;
-    std::vector< uint16_t > nodeOutStack;
-
-    std::string name;
-    std::string ident;
-
-    allNodes.push_back( main );
-    auto curJson = main;
-    nodeStack.push_back( "empty", main );
-
-    if( curJson->itemType &= jsonItem::IT_NODE_ARRAY ) {
-        nodeOutStack.push_back( BT_NODE_ARRAY_START );
-        output.push_back( BT_INCREASE_IDENT | BT_NODE_ARRAY_START | BT_NEWLINE | BT_ITEM, "[" );
+    pairvector< uint16_t, corestring > out;
+    if( item->itemType &= jsonItem::IT_NODE_ARRAY ) {
+        output.push_back( BT_INCREASE_IDENT | BT_USE_IDENT | BT_ITEM, "[" );
     } else {
-        nodeOutStack.push_back( BT_NODE_START );
-        output.push_back( BT_INCREASE_IDENT | BT_NODE_ARRAY_START | BT_NEWLINE | BT_ITEM, "{" );
+        output.push_back( BT_INCREASE_IDENT | BT_USE_IDENT | BT_ITEM, "{" );
     }
-
-    while( nodeStack.size() ) {
-        curJson = nodeStack.back().second;
-        if( curJson->itemType &= jsonItem::IT_NODE_ARRAY ) {
-            if( curJson->subItems.size() ) {
-                auto &subItems = curJson->subItems;
-                nodeStack.push_back( "array :", subItems.front() );
-                nodeOutStack.push_back( BT_NODE_START );
-                output.push_back( BT_USE_IDENT | BT_INCREASE_IDENT | BT_NODE_START | BT_NEWLINE | BT_ITEM, "{" );
-                subItems.erase(subItems.begin());
-                curJson = nodeStack.back().second;
+    output.push_back( BT_NEWLINE, "" );
+    if( item->array.size() ) {
+        for( auto &node : item->array ) {
+            if( &node != &*item->array.begin() )
+                output.push_back( BT_NEWLINE | BT_ITEM, ", " );
+            auto &realValue = node;
+            const char *src = "\"";
+            const char *dest = "\\\"";
+            size_t pos = 0;
+            for( ;; ) {
+                pos = realValue.find( src, pos );
+                if( pos == std::string::npos )
+                    break;
+                realValue.replace( pos, strlen( src ), "\\\"" );
+                pos += strlen( dest );
+            }
+            if(( "false" == realValue || "true" == realValue || "null" == realValue ) && realValue.length() ) {
+                output.push_back( BT_USE_IDENT | BT_ITEM, realValue );
             } else {
-                if( nodeOutStack.size() ) {
-                    nodeStack.pop_back();
-                    nodeOutStack.pop_back();
-                }
-                if( curJson->itemType &= jsonItem::IT_NODE_ARRAY ) {
-                    if( nodeStack.size() ) {
-                        output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, nodeStack.back().second->empty() ? "]" : "]," );
-                        curJson = nodeStack.back().second;
-                    } else {
-                        output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, "]" );
-                        break;
-                    }
-                }
+                output.push_back( BT_USE_IDENT | BT_ITEM, '"' );
+                output.push_back( BT_ITEM, realValue );
+                output.push_back( BT_ITEM, '"' );
             }
-            continue;
         }
-        if( curJson->nodes.size() ) {
-            auto &nodes = curJson->nodes;
-            nodeStack.push_back( nodes.begin()->first, nodes.begin()->second );
-            allNodes.push_back( nodeStack.back().second );
-            output.push_back( BT_USE_IDENT | BT_ITEM, '"' );
-            output.push_back( BT_ITEM, nodes.begin()->first );
-            output.push_back( BT_ITEM, '"' );
-            output.push_back( BT_ITEM, " : " );
-            auto &nextNode = nodes.begin()->second;
-            if( nextNode->itemType &= jsonItem::IT_NODE_ARRAY ) {
-                if( nextNode->subItems.size() ) {
-                    nodeOutStack.push_back( BT_NODE_ARRAY_START );
-                    output.push_back( BT_INCREASE_IDENT | BT_NODE_ARRAY_START | BT_NEWLINE | BT_ITEM, "[" );
-                    if( nextNode->nodes.size() ) {
-                        output.push_back( BT_USE_IDENT | BT_INCREASE_IDENT | BT_NODE_START | BT_NEWLINE | BT_ITEM, "{" );
-                    }
-                } else {
-                    nodeStack.pop_back();
-                    if( nextNode->nodes.size() ) {
-                        output.push_back( BT_NODE_ARRAY_START | BT_ITEM, "[ " );
-                        while( nextNode->nodes.size() ) {
-                            auto firstnode = nextNode->nodes.begin();
-                            output.push_back( BT_ITEM, '"' );
-                            output.push_back( BT_ITEM, firstnode->first );
-                            output.push_back( BT_ITEM, '"' );
-                            nextNode->nodes.erase( firstnode );
-                            if( nextNode->nodes.size() )
-                                output.push_back( BT_ITEM, ", " );
-                        }
-                        output.push_back( BT_NODE_ARRAY_START | BT_ITEM, " ]" );
-                    } else {
-                        output.push_back( BT_NODE_ARRAY_START | BT_ITEM, "[]" );
-                    }
-                    if( !curJson->empty() ) {
-                        output.push_back( BT_ITEM, "," );
-                    }
-                    output.push_back( BT_NEWLINE, "" );
-                }
-                nodes.erase( nodes.begin()->first );
-                continue;
-            }
-            if( !( curJson->itemType &= jsonItem::IT_NODE_ARRAY )) {
-                output.push_back( BT_INCREASE_IDENT | BT_NODE_START | BT_NEWLINE | BT_ITEM, "{" );
-            }
-            nodeOutStack.push_back( BT_NODE_START );
-            nodes.erase( nodes.begin()->first );
-            continue;
-        }
-        auto &values = curJson->values;
-        if( values.size() ) {
-            auto &value = *values.begin();
+        item->array.clear();
+        if( !item->empty() )
+            output.push_back( BT_ITEM, "," );
+    }
+    if( item->values.size() ) {
+        for( auto &value : item->values ) {
+            if( &value != &*item->values.begin() )
+                output.push_back( BT_NEWLINE | BT_ITEM, ", " );
             output.push_back( BT_USE_IDENT | BT_ITEM, '"' );
             output.push_back( BT_ITEM, value.first );
             output.push_back( BT_ITEM, '"' );
@@ -347,73 +279,64 @@ std::string json::toString( int identLength ) {
                 realValue.replace( pos, strlen( src ), "\\\"" );
                 pos += strlen( dest );
             }
-            if(( "false" == realValue || "true" == realValue ) && realValue.length() ) {
+            if(( "false" == realValue || "true" == realValue || "null" == realValue ) && realValue.length() ) {
                 output.push_back( BT_ITEM, realValue );
             } else {
                 output.push_back( BT_ITEM, '"' );
                 output.push_back( BT_ITEM, realValue );
                 output.push_back( BT_ITEM, '"' );
             }
-            values.erase( values.begin() );
-            if( curJson->empty() ) {
-                output.push_back( BT_NEWLINE, "" );
-                output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM, "}" );
-                nodeStack.pop_back();
-                nodeOutStack.pop_back();
-                if( nodeStack.size() ) {
-                    curJson = nodeStack.back().second;
-                } else {
-                    output.push_back( BT_NEWLINE, "" );
-                    break;
-                }
-                if( !curJson->empty() )
-                    output.push_back( BT_ITEM, "," );
-                output.push_back( BT_NEWLINE, "" );
-            } else {
-                output.push_back( BT_ITEM | BT_NEWLINE, "," );
-            }
-            continue;
         }
-        if(( nodeOutStack.back() & BT_TYPE_MASK ) == BT_NODE_START  ) {
-            nodeStack.pop_back();
-            nodeOutStack.pop_back();
-            if( nodeOutStack.size() ) {
-                curJson = nodeStack.back().second;
-                if(( nodeOutStack.back() & BT_TYPE_MASK ) == BT_NODE_ARRAY_START ) {
-                    if( curJson->subItems.size() ) {
-                        output.push_back( BT_DECREASE_IDENT | BT_NEWLINE, "" );
-                        output.push_back( BT_USE_IDENT | BT_ITEM | BT_NEWLINE, "}, {" );
-                    } else {
-                        output.push_back( BT_NEWLINE, "" );
-                        output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, "}" );
-                        nodeStack.pop_back();
-                        nodeOutStack.pop_back();
-                        if( nodeStack.size() ) {
-                            curJson = nodeStack.back().second;
-                            output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, curJson->empty() ? "]" : "]," );
-                        }
-                    }
-                } else {
-                    output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, curJson->empty() ? "}" : "}," );
-                }
-            } else {
-                output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, "}" );
-            }
-            continue;
-        }
-        if( curJson->empty() ) {
-            nodeStack.pop_back();
-            nodeOutStack.pop_back();
-            if( curJson->itemType &= jsonItem::IT_NODE_ARRAY ) {
-                if( nodeStack.size() ) {
-                    curJson = nodeStack.back().second;
-                    output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM | BT_NEWLINE, curJson->empty() ? "]" : "]," );
-                }
-            } else
-                output.push_back( BT_USE_IDENT | BT_DECREASE_IDENT | BT_NODE_ARRAY_STOP | BT_NEWLINE | BT_ITEM, "}" );
-            break;
+        item->values.clear();
+        if( !item->empty() ) {
+            output.push_back( BT_NEWLINE | BT_ITEM, "," );
         }
     }
+    if( item->nodes.size() ) {
+        for( auto &node : item->nodes ) {
+            if( &node != &*item->nodes.begin() )
+                output.push_back( BT_NEWLINE | BT_ITEM, ", " );
+            output.push_back( BT_USE_IDENT | BT_ITEM, '"' );
+            output.push_back( BT_ITEM, node.first );
+            output.push_back( BT_ITEM, '"' );
+            output.push_back( BT_ITEM, " : " );
+            output.push_back( BT_NEWLINE, "" );
+            nodeToString( output, node.second );
+        }
+        item->nodes.clear();
+        if( !item->empty() ) {
+            output.push_back( BT_NEWLINE | BT_ITEM, "," );
+        }
+    }
+    if( item->subItems.size() ) {
+        for( auto &node : item->subItems ) {
+            if( &node != &*item->subItems.begin() )
+                output.push_back( BT_NEWLINE | BT_ITEM, ", " );
+            nodeToString( output, node );
+        }
+        item->subItems.clear();
+    }
+    output.push_back( BT_NEWLINE, "" );
+    if( item->itemType &= jsonItem::IT_NODE_ARRAY ) {
+        output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM, "]" );
+    } else {
+        output.push_back( BT_DECREASE_IDENT | BT_USE_IDENT | BT_ITEM, "}" );
+    }
+    return output;
+}
+
+///////////////////////////////////////
+std::string json::toString( int identLength ) {
+///////////////////////////////////////
+    std::string itentString;
+    itentString.resize( identLength );
+    memset( &*itentString.begin(), ' ', itentString.length() );
+
+    pairvector< uint16_t, corestring > output;
+    nodeToString( output, main );
+    output.push_back( BT_NEWLINE, "" );
+
+    std::string ident;
     std::string outputstring;
     char *out = 0;
     bool predict = true;
@@ -422,6 +345,7 @@ std::string json::toString( int identLength ) {
     for( auto item = output.begin();; ++item ) {
         if( item == output.end() ) {
             if( predict ) {
+                ident.clear();
                 predict = false;
                 item = output.begin();
                 outputstring.resize( size );

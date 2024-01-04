@@ -1,3 +1,4 @@
+#!bash
 errors=0
 files=0
 mkdir -p out

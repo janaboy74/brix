@@ -6,11 +6,11 @@
 namespace core {
 
 //--------------------------------
-template <class I, class V, class Alloc = std::allocator<std::pair<const I, const V>>> struct pairvector : public std::vector<std::pair<const I, const V>, Alloc> {
+template <class I, class V, class Alloc = std::allocator<std::pair<I, V>>> struct pairvector : public std::vector<std::pair<I, V>, Alloc> {
 //--------------------------------
-    pairvector() : std::vector<std::pair<I, V>>() {}
-    pairvector( std::initializer_list<std::pair<const I, const V>> list, const Alloc& alloc = Alloc() ) : std::vector<std::pair<const I, const V>, Alloc>( list, alloc ) {}
-    void push_back( const I item, const V val ) {
+    pairvector() : std::vector<std::pair<I, V>, Alloc>() {}
+    pairvector( std::initializer_list<std::pair<I, V>> list, const Alloc& alloc = Alloc() ) : std::vector<std::pair<I, V>, Alloc>( list, alloc ) {}
+    void push_back( I item, V val ) {
         std::vector<std::pair<I,V>>::push_back( std::pair<I, V>( item, val ));
     }
     std::pair<I,V> &operator[]( const size_t index ) {
